@@ -158,7 +158,7 @@ def main() -> None:
     ax.set_xticklabels(c_labels, rotation=12, ha="right")
     ax.set_ylabel("Average CPU Utilization (%)")
     ax.set_title("Measured Single-Core Validation Slot CPU Utilization (Mean ± SD, n=20)")
-    ax.set_ylim(0, 105)
+    ax.set_ylim(0, max(35, max(c_means) + max(c_sds) + 8))
     ax.grid(axis="y", linestyle="--", alpha=0.4)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)

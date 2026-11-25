@@ -1,8 +1,8 @@
-"""Discrete-event blockchain consensus simulator and empirical evaluation runner.
+"""Discrete-time analytic blockchain consensus & mempool evaluation model.
 
-Executes scaled-difficulty PoW validation rounds across 1,000 simulated miners (SimBlock
-overlay) and 50 WAN-emulated nodes under DDoS flooding, Sybil cliques, bootstrapping defectors,
-and combined multi-vector attacks.
+Executes time-stepped mempool admission and closed-form analytic propagation/decision
+evaluations across 1,000 simulated miners (SimBlock-calibrated overlay) and 50 WAN-mode
+nodes under DDoS flooding, Sybil cliques, bootstrapping defectors, and multi-vector attacks.
 """
 
 from __future__ import annotations
@@ -143,29 +143,23 @@ def simulate_single_trial(
         delta_hat = float(np.clip(0.10 + 0.78 * atk_scale * (0.65 + 0.7 * traitor_fraction) + rng.normal(0, 0.02), 0.0, 1.0))
 
         ml_filter_s = 0.0
-        extra_honest_pen = 0.0
-        spam_leak_factor = 1.0
+        extra_honest_pen: float | None = None
+        spam_leak_factor: float | None = None
 
         if model_name == "Standard PoW":
             admitted = np.ones(n_nodes, dtype=bool)
-            spam_leak_factor = 1.0
 
         elif model_name == "ML-IDS":
             if ml_detector is None:
                 ml_detector = MLIDSDetector(seed=42)
-            # Only run heavy ML batch extraction dynamically when traffic exists (or nominal light monitoring)
+            # Measure actual wall-clock RF inference latency per validation slot
+            t_infer0 = time.perf_counter()
             admitted = ml_detector.extract_and_classify(n_nodes, is_mal, attack_active, rng)
-            # Feature extraction + RF inference delay scales with inbound flood packet volume
-            ml_filter_s = 0.12 + 1.05 * atk_scale
-            # Reactive IDS detects bursts after initial backlog builds (38% leak during t=30..42, 16% steady)
-            spam_leak_factor = 0.38 if (attack_active and t < cfg.ddos_start_s + 12) else (0.14 if attack_active else 0.10)
-            extra_honest_pen = float((~admitted & ~is_mal).sum()) / max(1, (~is_mal).sum()) * 0.40
+            ml_filter_s = time.perf_counter() - t_infer0
 
         elif model_name == "Static TOPSIS":
             raw_prf = compute_credibility_prf(ths, nbr_ratings, cfg, uniform_fallback=True, neighbor_indices=nbr_indices)
             admitted, _ = static_topsis_admit(ths, nsi, raw_prf, threshold=0.45)
-            spam_leak_factor = 0.30 if atk_scale > 0.5 else 0.08
-            extra_honest_pen = float((~admitted & ~is_mal).sum()) / max(1, (~is_mal).sum()) * 0.60
 
         elif model_name == "EWMA Reputation":
             round_q = np.where(
@@ -174,13 +168,15 @@ def simulate_single_trial(
                 rng.uniform(0.70, 0.96, n_nodes),
             )
             admitted, ewma_score = ewma_update_and_admit(ewma_score, round_q, cfg, threshold=0.58)
-            spam_leak_factor = 0.48
-            extra_honest_pen = float((~admitted & ~is_mal).sum()) / max(1, (~is_mal).sum()) * 0.50
 
         elif model_name == "Token Bucket":
             admitted = np.ones(n_nodes, dtype=bool)
             _, adm_a, tb_pen = token_bucket_filter(
-                honest_in, spam_in, cfg.token_bucket_capacity, cfg.token_bucket_rate
+                honest_in,
+                spam_in,
+                cfg.token_bucket_capacity,
+                cfg.token_bucket_rate,
+                num_ingress_peers=cfg.token_bucket_peers,
             )
             spam_leak_factor = (adm_a / max(1.0, spam_in)) if spam_in > 0 else 0.0
             extra_honest_pen = tb_pen
@@ -221,8 +217,6 @@ def simulate_single_trial(
             ths = update_ths_asymmetric(ths, valid_outcomes, proposers, cfg)
             nsi = np.clip(nsi + rng.normal(0.0, 0.004, size=n_nodes), 0.05, 0.99)
             probation_left = np.maximum(0, probation_left - (admitted.astype(int)))
-            spam_leak_factor = float((admitted & is_mal).sum()) / max(1, n_mal)
-            extra_honest_pen = float((~admitted & ~is_mal).sum()) / max(1, (~is_mal).sum()) * 0.20
 
         else:
             raise ValueError(f"Unknown model: {model_name}")
@@ -232,6 +226,12 @@ def simulate_single_trial(
         fnr = float((admitted & is_mal).sum()) / max(1, n_mal)
         fpr_samples.append(fpr)
         fnr_samples.append(fnr)
+
+        # Drive all admission-based filters symmetrically from their own emergent FNR and uniform honest-relay loss weight
+        if spam_leak_factor is None:
+            spam_leak_factor = fnr
+        if extra_honest_pen is None:
+            extra_honest_pen = fpr * cfg.honest_relay_penalty_weight
 
         admitted_spam = spam_in * spam_leak_factor
         admitted_honest = honest_in * (1.0 - extra_honest_pen)
@@ -263,7 +263,7 @@ def simulate_single_trial(
         fork_rate = float(np.clip(0.004 + 0.015 * b_prop + 0.08 * mal_share_admitted, 0.002, 0.22))
         stale_rate = float(np.clip(0.42 * fork_rate + 0.045 * mal_share_admitted, 0.001, 0.18))
 
-        base_decision_s = 1.65 if len(admitted) < n_nodes else 2.05
+        base_decision_s = 1.65 if int(admitted.sum()) < n_nodes else 2.05
         congestion_bcr = 0.45 * load_ratio + 1.35 * (load_ratio ** 1.15)
         fork_inflation = 1.0 / max(0.38, 1.0 - 2.0 * fork_rate)
         b_cr = (base_decision_s + congestion_bcr + 1.90 * ml_filter_s + 0.85 * b_prop) * fork_inflation + float(rng.normal(0, 0.07))

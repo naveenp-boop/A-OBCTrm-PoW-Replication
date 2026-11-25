@@ -54,10 +54,12 @@ class SimConfig:
     n_min_probation: int = 50
     w_ths_probation_cap: float = 0.30
 
-    # Baselines (Section 4.2)
+    # Baselines (Section 4.2) & shared admission relay-loss parameter
+    honest_relay_penalty_weight: float = 0.20
     ewma_lambda: float = 0.85
     token_bucket_capacity: int = 500
     token_bucket_rate: float = 50.0
+    token_bucket_peers: int = 55
     dyn_fee_zeta: float = 2.0
 
     # 50-node WAN emulation parameters (Section 4.8 & 5.1)

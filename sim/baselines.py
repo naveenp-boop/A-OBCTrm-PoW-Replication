@@ -174,7 +174,7 @@ def token_bucket_filter(
     attack_tx_rate: float,
     capacity_tx: int,
     refill_rate_tx_s: float,
-    num_ingress_peers: int = 130,
+    num_ingress_peers: int = 55,
 ) -> tuple[float, float, float]:
     """Indiscriminate token-bucket ingress throttling aggregated across gateway peers.
 

@@ -7,6 +7,7 @@ to prevent OS scheduling jitter from inverting microsecond-level differences.
 
 from __future__ import annotations
 import hashlib
+import platform
 import time
 import numpy as np
 from .config import SimConfig
@@ -16,7 +17,23 @@ from .trust_engine import (
     compute_dynamic_threshold,
     compute_topsis_closeness,
 )
-from .baselines import MLIDSDetector, static_topsis_admit, ewma_update_and_admit
+from .baselines import (
+    MLIDSDetector,
+    dynamic_fee_filter,
+    ewma_update_and_admit,
+    static_topsis_admit,
+    token_bucket_filter,
+)
+
+
+def _get_cpu_hardware_name() -> str:
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as key:
+            val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+            return str(val).strip()
+    except Exception:
+        return platform.processor() or platform.machine() or "Unknown CPU"
 
 
 def benchmark_model_cpu_and_runtime(cfg: SimConfig, n_rounds: int = 25, n_trials: int = 20) -> dict:
@@ -59,10 +76,10 @@ def benchmark_model_cpu_and_runtime(cfg: SimConfig, n_rounds: int = 25, n_trials
         "A-OBCTrm-PoW (Proposed)",
     ]
 
-    results = {}
+    results = {"cpu_hardware": _get_cpu_hardware_name(), "slot_cpu_budget_ms": slot_cpu_budget_ms}
     for name in models:
         inc_ms_trials = []
-        # Run 4x rounds for tiny vectorized models to minimize Windows timer quantization
+        # Run 4x rounds for fast vectorized models to minimize OS timer quantization; ML runs 1x per slot cleanly
         inner_mult = 1 if "ML-Based" in name else 4
         eff_rounds = n_rounds * inner_mult
         for _ in range(n_trials):
@@ -71,8 +88,7 @@ def benchmark_model_cpu_and_runtime(cfg: SimConfig, n_rounds: int = 25, n_trials
                 if name == "Standard PoW (No Defense)":
                     pass
                 elif name == "ML-Based IDS (Network Layer)":
-                    for _ in range(4):
-                        detector.extract_and_classify(m, is_mal, True, rng)
+                    detector.extract_and_classify(m, is_mal, True, rng)
                 elif name == "Static TOPSIS (Pre-processing)":
                     # Rolling NSI stability aggregation + unweighted peer ratings + fixed TOPSIS
                     _ = window_telemetry.mean(axis=0)
@@ -88,9 +104,15 @@ def benchmark_model_cpu_and_runtime(cfg: SimConfig, n_rounds: int = 25, n_trials
                     c = compute_topsis_closeness(ths, nsi, prf, w)
                     compute_dynamic_threshold(c, 0.70, cfg)
                 elif name == "Rate Limiting (Token Bucket)":
-                    _ = np.minimum(500.0, rng.poisson(50, size=130))
+                    token_bucket_filter(
+                        cfg.nominal_tx_rate,
+                        cfg.ddos_attack_rate,
+                        cfg.token_bucket_capacity,
+                        cfg.token_bucket_rate,
+                        cfg.token_bucket_peers,
+                    )
                 elif name == "Dynamic Fee Mechanism":
-                    _ = 1.0 + 2.0 * (0.85 ** 2)
+                    dynamic_fee_filter(cfg.nominal_tx_rate, cfg.ddos_attack_rate, 0.85, cfg)
             inc_ms_trials.append((time.perf_counter() - t0) * 1000.0 / eff_rounds)
 
         total_ms = base_arr + np.asarray(inc_ms_trials, dtype=np.float64)

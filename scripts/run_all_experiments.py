@@ -63,7 +63,7 @@ def main() -> None:
     ml = MLIDSDetector(seed=42)
     seeds = list(range(100, 100 + cfg.num_trials))
 
-    print("[1/6] Running formal mathematical proof & auxiliary validations...")
+    print("[1/6] Running initial mathematical proof checks...")
     run_proofs()
 
     print("[2/6] Mining 5 sample 16-bit SHA-256 PoW blocks for ledger proof...")
@@ -204,6 +204,8 @@ def main() -> None:
         "metadata": {
             "num_miners": cfg.num_miners,
             "num_trials": cfg.num_trials,
+            "cpu_hardware": cpu_results.get("cpu_hardware", "Unknown"),
+            "slot_cpu_budget_ms": cpu_results.get("slot_cpu_budget_ms", 92.0),
             "elapsed_wall_s": round(time.perf_counter() - t_start, 2),
         },
         "sample_pow_blocks": pow_blocks,
@@ -226,6 +228,9 @@ def main() -> None:
 
     with open(RESULTS_DIR / "all_experiment_results.json", "w", encoding="utf-8") as f:
         json.dump(master_output, f, indent=2)
+
+    # Re-run proof verification against newly generated master_output so Theorem 4 telemetry is synchronized
+    run_proofs(exp_results=master_output)
 
     with open(RESULTS_DIR / "trial_telemetry.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(all_rows_csv[0].keys()))

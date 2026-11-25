@@ -6,6 +6,7 @@
     "clamped_max_weight": 0.8,
     "observed_max_derivative": 0.6249999656695783,
     "theoretical_lipschitz_bound": 0.625,
+    "clamped_vector_max_delta_lipschitz": 0.787591,
     "monotonic_strictly": true
   },
   "theorem_2_asymmetric_ths": {
@@ -85,23 +86,47 @@
     "theorem3_theoretical_upper_bound": 0.1047,
     "corrupted_majority_feedback_bound": 0.4615
   },
+  "theorem_4_bft_capacity_and_feff": {
+    "passed": true,
+    "bft_one_third_margin_holds_across_grid": true,
+    "empirical_50pct_cases": {
+      "reliable_feedback": {
+        "f": 0.5,
+        "rho_fpr": 0.0438,
+        "psi_fnr": 0.0038,
+        "H_HM": 0.4781,
+        "A_HM": 0.0019,
+        "f_eff": 0.004,
+        "exceeds_one_third": false
+      },
+      "corrupted_feedback": {
+        "f": 0.5,
+        "rho_fpr": 0.092,
+        "psi_fnr": 0.6447,
+        "H_HM": 0.454,
+        "A_HM": 0.3224,
+        "f_eff": 0.4152,
+        "exceeds_one_third": true
+      }
+    }
+  },
   "theorem_5_trimmed_threshold_noise": {
     "baseline_T": 0.4979,
     "injections": {
       "5pct": {
-        "T_new": 0.47,
-        "T_relative_shift_pct": 5.61,
-        "trimmed_mean_shift_pct": 3.97
+        "T_new": 0.4979,
+        "T_relative_shift_pct": 0.0,
+        "trimmed_mean_shift_pct": 0.0
       },
       "10pct": {
-        "T_new": 0.47,
-        "T_relative_shift_pct": 5.61,
-        "trimmed_mean_shift_pct": 8.03
+        "T_new": 0.4765,
+        "T_relative_shift_pct": 4.31,
+        "trimmed_mean_shift_pct": 1.22
       },
       "20pct": {
         "T_new": 0.47,
         "T_relative_shift_pct": 5.61,
-        "trimmed_mean_shift_pct": 15.29
+        "trimmed_mean_shift_pct": 4.61
       }
     }
   },

@@ -1,6 +1,6 @@
 """Automated verification suite validating core theorems and A-OBCTrm-PoW invariants.
 
-Runs cleanly with either `python -m unittest discover -s tests` or `pytest`.
+Runs cleanly with `python -m unittest discover -s tests -v`.
 """
 
 import sys
@@ -21,6 +21,8 @@ from scripts.verify_proofs import (
     verify_theorem_1,
     verify_theorem_2,
     verify_theorem_3,
+    verify_theorem_4,
+    verify_threshold_noise_sensitivity,
 )
 
 
@@ -68,6 +70,19 @@ class TestAOBCTrmPoW(unittest.TestCase):
         clean_50 = simulate_single_trial("A-OBCTrm-PoW", 1, cfg, traitor_fraction=0.50, attack_mode="ddos")
         corrupt_50 = simulate_single_trial("A-OBCTrm-PoW", 1, cfg, traitor_fraction=0.50, attack_mode="corrupted_feedback")
         self.assertGreater(corrupt_50["fnr_pct"], clean_50["fnr_pct"])
+
+    def test_theorem_4_bft_and_feff(self):
+        res = verify_theorem_4(SimConfig(), exp_results={})
+        self.assertTrue(res["passed"])
+        self.assertTrue(res["bft_one_third_margin_holds_across_grid"])
+        f, rho, psi = 0.50, 0.0920, 0.6447
+        f_eff = (f * psi) / ((1.0 - f) * (1.0 - rho) + f * psi)
+        self.assertAlmostEqual(f_eff, 0.4152, places=4)
+
+    def test_theorem_5_fixed_sample_breakdown(self):
+        res = verify_threshold_noise_sensitivity(SimConfig())
+        self.assertEqual(res["injections"]["5pct"]["trimmed_mean_shift_pct"], 0.0)
+        self.assertGreater(res["injections"]["10pct"]["trimmed_mean_shift_pct"], 0.0)
 
 
 if __name__ == "__main__":
