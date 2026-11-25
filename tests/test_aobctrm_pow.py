@@ -46,6 +46,7 @@ class TestAOBCTrmPoW(unittest.TestCase):
             res["probationary_30pct_sybil_observed_shift"],
             res["theorem3_theoretical_upper_bound"],
         )
+        self.assertGreater(res["corrupted_majority_feedback_bound"], 0.50)
 
     def test_real_pow_puzzle(self):
         nonce, digest_hex, _ = solve_scaled_pow_sample("unit-test-block", leading_zero_bits=12)

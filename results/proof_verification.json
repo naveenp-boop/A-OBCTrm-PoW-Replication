@@ -84,7 +84,7 @@
     "zero_history_sybil_shift": 0.0,
     "probationary_30pct_sybil_observed_shift": 0.0877,
     "theorem3_theoretical_upper_bound": 0.1047,
-    "corrupted_majority_feedback_bound": 0.4615
+    "corrupted_majority_feedback_bound": 0.5333
   },
   "theorem_4_bft_capacity_and_feff": {
     "passed": true,

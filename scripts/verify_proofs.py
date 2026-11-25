@@ -153,11 +153,12 @@ def verify_theorem_3(cfg: SimConfig) -> dict:
     obs_shift = abs(prf_clean - prf_att)
     assert obs_shift <= theo_bound + 1e-9
 
-    # Test breakdown when >50% aged nodes are corrupted
-    n_comp = 600
+    # Test breakdown when >50% aged nodes are corrupted (800 corrupted vs 700 honest => 53.3% > 50%)
+    n_comp = 800
     comp_ths = np.full(n_comp, 0.85)
     c_comp = float(np.minimum(1.0, comp_ths / cfg.theta_c).sum())
     breakdown_bound = c_comp / (c_comp + float(c_h) + cfg.eps)
+    assert breakdown_bound > 0.50
 
     return {
         "passed": True,
