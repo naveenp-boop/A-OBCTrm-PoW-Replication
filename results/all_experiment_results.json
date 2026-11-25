@@ -2,40 +2,43 @@
   "metadata": {
     "num_miners": 1000,
     "num_trials": 30,
+    "python_version": "3.14.3",
+    "numpy_version": "2.4.3",
+    "sklearn_version": "1.9.0",
     "cpu_hardware": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
     "slot_cpu_budget_ms": 92.0,
-    "elapsed_wall_s": 262.07
+    "elapsed_wall_s": 221.07
   },
   "sample_pow_blocks": [
     {
       "height": 0,
       "nonce": 63324,
       "sha256_hash": "00007b58c2f5e64aceba46d7738cc0ba7cf0ad470d66896aa0c812e4e4ad6811",
-      "solve_ms": 89.42
+      "solve_ms": 99.99
     },
     {
       "height": 1,
       "nonce": 12537,
       "sha256_hash": "000063dceab92827aaa493829defb5de32b90fd384acd5f78963f7401ff7206e",
-      "solve_ms": 18.65
+      "solve_ms": 19.72
     },
     {
       "height": 2,
       "nonce": 7703,
       "sha256_hash": "000045150b777d9801da4de7053de2d7ea14abde39e27024b2ccde76817d98fa",
-      "solve_ms": 10.58
+      "solve_ms": 11.79
     },
     {
       "height": 3,
       "nonce": 47800,
       "sha256_hash": "0000ef6c49f4689166353268c14999de8adae9a9ffd1edf3d62b7374a354b405",
-      "solve_ms": 69.61
+      "solve_ms": 75.45
     },
     {
       "height": 4,
       "nonce": 79790,
       "sha256_hash": "0000b2ec5e027d519a37e8bce42f19270d1649cb82ca9f5c2e9d1992b15802f1",
-      "solve_ms": 111.64
+      "solve_ms": 127.87
     }
   ],
   "nominal_summary": {
@@ -55,16 +58,16 @@
     },
     "ML-IDS": {
       "b_cr_s": {
-        "mean": 2.2455,
-        "sd": 0.0091,
-        "min": 2.2327,
-        "max": 2.2703
+        "mean": 2.2362,
+        "sd": 0.0072,
+        "min": 2.221,
+        "max": 2.2554
       },
       "b_prop_s": {
-        "mean": 0.5642,
-        "sd": 0.0049,
-        "min": 0.556,
-        "max": 0.5776
+        "mean": 0.5622,
+        "sd": 0.0043,
+        "min": 0.5528,
+        "max": 0.5714
       }
     },
     "Static TOPSIS": {
@@ -130,35 +133,35 @@
         "max": 0.0
       },
       "cpu_overhead_pct": {
-        "mean": 16.38,
-        "sd": 3.01,
-        "per_round_ms": 15.07
+        "mean": 14.95,
+        "sd": 0.57,
+        "per_round_ms": 13.76
       }
     },
     "ML-Based IDS (Network Layer)": {
       "b_cr_s": {
-        "mean": 2.0946,
-        "sd": 0.0108,
+        "mean": 2.0947,
+        "sd": 0.0087,
         "min": 2.0753,
-        "max": 2.1191
+        "max": 2.112
       },
       "b_prop_s": {
         "mean": 0.4426,
-        "sd": 0.0042,
-        "min": 0.4328,
-        "max": 0.4507
+        "sd": 0.0037,
+        "min": 0.4337,
+        "max": 0.4499
       },
       "fork_rate_pct": {
-        "mean": 1.0638,
-        "sd": 0.0062,
-        "min": 1.0492,
-        "max": 1.076
+        "mean": 1.0639,
+        "sd": 0.0056,
+        "min": 1.0505,
+        "max": 1.0748
       },
       "bandwidth_mb_s": {
         "mean": 10.9531,
-        "sd": 0.0007,
-        "min": 10.9514,
-        "max": 10.9544
+        "sd": 0.0006,
+        "min": 10.9515,
+        "max": 10.9543
       },
       "honest_penalty_pct": {
         "mean": 0.0,
@@ -167,9 +170,9 @@
         "max": 0.0
       },
       "cpu_overhead_pct": {
-        "mean": 33.65,
-        "sd": 3.01,
-        "per_round_ms": 30.96
+        "mean": 30.87,
+        "sd": 1.03,
+        "per_round_ms": 28.4
       }
     },
     "Static TOPSIS (Pre-processing)": {
@@ -204,9 +207,9 @@
         "max": 0.0
       },
       "cpu_overhead_pct": {
-        "mean": 16.95,
-        "sd": 2.97,
-        "per_round_ms": 15.6
+        "mean": 15.37,
+        "sd": 0.56,
+        "per_round_ms": 14.14
       }
     },
     "EWMA Reputation Filter": {
@@ -241,9 +244,9 @@
         "max": 0.0
       },
       "cpu_overhead_pct": {
-        "mean": 16.39,
-        "sd": 3.01,
-        "per_round_ms": 15.08
+        "mean": 14.96,
+        "sd": 0.57,
+        "per_round_ms": 13.76
       }
     },
     "Rate Limiting (Token Bucket)": {
@@ -278,9 +281,9 @@
         "max": 62.1656
       },
       "cpu_overhead_pct": {
-        "mean": 16.39,
-        "sd": 3.01,
-        "per_round_ms": 15.07
+        "mean": 14.95,
+        "sd": 0.57,
+        "per_round_ms": 13.76
       }
     },
     "Dynamic Fee Mechanism": {
@@ -315,9 +318,9 @@
         "max": 16.4327
       },
       "cpu_overhead_pct": {
-        "mean": 16.43,
-        "sd": 3.01,
-        "per_round_ms": 15.11
+        "mean": 14.97,
+        "sd": 0.57,
+        "per_round_ms": 13.78
       }
     },
     "A-OBCTrm-PoW (Proposed)": {
@@ -352,9 +355,9 @@
         "max": 1.2807
       },
       "cpu_overhead_pct": {
-        "mean": 18.02,
-        "sd": 3.09,
-        "per_round_ms": 16.57
+        "mean": 15.94,
+        "sd": 0.55,
+        "per_round_ms": 14.67
       }
     }
   },
@@ -377,6 +380,12 @@
         "sd": 0.8629,
         "min": 3.3272,
         "max": 6.6508
+      },
+      "f_eff": {
+        "mean": 0.0,
+        "sd": 0.0,
+        "min": 0.0,
+        "max": 0.0
       },
       "pool_uptime_pct": {
         "mean": 100.0,
@@ -428,6 +437,12 @@
         "min": 3.1931,
         "max": 6.4035
       },
+      "f_eff": {
+        "mean": 0.0006,
+        "sd": 0.0007,
+        "min": 0.0,
+        "max": 0.0019
+      },
       "pool_uptime_pct": {
         "mean": 100.0,
         "sd": 0.0,
@@ -477,6 +492,12 @@
         "sd": 0.9897,
         "min": 2.6,
         "max": 7.0154
+      },
+      "f_eff": {
+        "mean": 0.004,
+        "sd": 0.0029,
+        "min": 0.0,
+        "max": 0.0116
       },
       "pool_uptime_pct": {
         "mean": 100.0,
@@ -528,6 +549,12 @@
         "min": 4.9209,
         "max": 17.4308
       },
+      "f_eff": {
+        "mean": 0.4148,
+        "sd": 0.0113,
+        "min": 0.3904,
+        "max": 0.4345
+      },
       "pool_uptime_pct": {
         "mean": 0.0,
         "sd": 0.0,
@@ -577,6 +604,12 @@
         "sd": 0.8948,
         "min": 2.978,
         "max": 7.0235
+      },
+      "f_eff": {
+        "mean": 0.0033,
+        "sd": 0.002,
+        "min": 0.0002,
+        "max": 0.0081
       },
       "pool_uptime_pct": {
         "mean": 100.0,
@@ -628,6 +661,12 @@
         "min": 0.0,
         "max": 0.2857
       },
+      "f_eff": {
+        "mean": 0.0638,
+        "sd": 0.0109,
+        "min": 0.0398,
+        "max": 0.0874
+      },
       "pool_uptime_pct": {
         "mean": 100.0,
         "sd": 0.0,
@@ -678,6 +717,12 @@
         "min": 2.7143,
         "max": 6.6656
       },
+      "f_eff": {
+        "mean": 0.003,
+        "sd": 0.002,
+        "min": 0.0,
+        "max": 0.0081
+      },
       "pool_uptime_pct": {
         "mean": 100.0,
         "sd": 0.0,
@@ -727,16 +772,16 @@
     },
     "ML-IDS": {
       "b_cr_s": {
-        "mean": 2.641,
-        "sd": 0.091,
-        "min": 2.4814,
-        "max": 2.8784
+        "mean": 2.6332,
+        "sd": 0.0899,
+        "min": 2.4734,
+        "max": 2.8762
       },
       "b_prop_s": {
-        "mean": 0.6506,
-        "sd": 0.0819,
-        "min": 0.5067,
-        "max": 0.86
+        "mean": 0.6491,
+        "sd": 0.0817,
+        "min": 0.5051,
+        "max": 0.8596
       }
     },
     "A-OBCTrm-PoW": {
@@ -766,12 +811,12 @@
     },
     "b_cr_vs_ML_IDS": {
       "n_trials": 30,
-      "mean_reduction": 0.0291,
-      "ci_95_low": 0.0235,
-      "ci_95_high": 0.0347,
-      "t_stat": 10.557,
-      "p_value": 1.9026537197024256e-11,
-      "cohens_d": 2.9823
+      "mean_reduction": 0.0292,
+      "ci_95_low": 0.0249,
+      "ci_95_high": 0.0334,
+      "t_stat": 14.0121,
+      "p_value": 1.9208172958072537e-14,
+      "cohens_d": 3.3807
     },
     "b_cr_vs_EWMA": {
       "n_trials": 30,
@@ -1823,55 +1868,55 @@
     "cpu_hardware": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
     "slot_cpu_budget_ms": 92.0,
     "Standard PoW (No Defense)": {
-      "per_round_ms_mean": 15.07348920005461,
-      "per_round_ms_sd": 2.7698637952939644,
-      "incremental_ms_mean": 3.419999120524153e-05,
-      "cpu_overhead_pct_mean": 16.38422739136371,
-      "cpu_overhead_pct_sd": 3.0107215166238737
+      "per_round_ms_mean": 13.755330650041287,
+      "per_round_ms_sd": 0.5276973581153512,
+      "incremental_ms_mean": 3.7849989894311875e-05,
+      "cpu_overhead_pct_mean": 14.95144635874053,
+      "cpu_overhead_pct_sd": 0.5735840849079904
     },
     "ML-Based IDS (Network Layer)": {
-      "per_round_ms_mean": 30.96070540015353,
-      "per_round_ms_sd": 2.7722680251575533,
-      "incremental_ms_mean": 15.887250400090124,
-      "cpu_overhead_pct_mean": 33.652940652340796,
-      "cpu_overhead_pct_sd": 3.0133348099538626
+      "per_round_ms_mean": 28.399643000098877,
+      "per_round_ms_sd": 0.9472421784550491,
+      "incremental_ms_mean": 14.644350200047484,
+      "cpu_overhead_pct_mean": 30.869177174020525,
+      "cpu_overhead_pct_sd": 1.0296110635380968
     },
     "Static TOPSIS (Pre-processing)": {
-      "per_round_ms_mean": 15.596861350059044,
-      "per_round_ms_sd": 2.734748909162124,
-      "incremental_ms_mean": 0.5234063499956392,
-      "cpu_overhead_pct_mean": 16.953110163107656,
-      "cpu_overhead_pct_sd": 2.9725531621327432
+      "per_round_ms_mean": 14.135802950055222,
+      "per_round_ms_sd": 0.5183820901161134,
+      "incremental_ms_mean": 0.38051015000382904,
+      "cpu_overhead_pct_mean": 15.365003206581761,
+      "cpu_overhead_pct_sd": 0.5634587936044709
     },
     "EWMA Reputation Filter": {
-      "per_round_ms_mean": 15.082491550077975,
-      "per_round_ms_sd": 2.7704852399893207,
-      "incremental_ms_mean": 0.009036550014570821,
-      "cpu_overhead_pct_mean": 16.394012554432585,
-      "cpu_overhead_pct_sd": 3.0113969999883916
+      "per_round_ms_mean": 13.762776400035364,
+      "per_round_ms_sd": 0.527941243110656,
+      "incremental_ms_mean": 0.007483599983970635,
+      "cpu_overhead_pct_mean": 14.959539565255833,
+      "cpu_overhead_pct_sd": 0.5738491772941916
     },
     "Rate Limiting (Token Bucket)": {
-      "per_round_ms_mean": 15.074398950069735,
-      "per_round_ms_sd": 2.769854624443517,
-      "incremental_ms_mean": 0.0009439500063308515,
-      "cpu_overhead_pct_mean": 16.385216250075803,
-      "cpu_overhead_pct_sd": 3.01071154830817
+      "per_round_ms_mean": 13.756157100047858,
+      "per_round_ms_sd": 0.5276946330374713,
+      "incremental_ms_mean": 0.0008642999964649789,
+      "cpu_overhead_pct_mean": 14.952344673965063,
+      "cpu_overhead_pct_sd": 0.5735811228668172
     },
     "Dynamic Fee Mechanism": {
-      "per_round_ms_mean": 15.111242200044217,
-      "per_round_ms_sd": 2.769473612283781,
-      "incremental_ms_mean": 0.03778719998081215,
-      "cpu_overhead_pct_mean": 16.425263260917625,
-      "cpu_overhead_pct_sd": 3.0102974046562836
+      "per_round_ms_mean": 13.776110000049812,
+      "per_round_ms_sd": 0.5280965844308142,
+      "incremental_ms_mean": 0.0208171999984188,
+      "cpu_overhead_pct_mean": 14.974032608749795,
+      "cpu_overhead_pct_sd": 0.5740180265552325
     },
     "A-OBCTrm-PoW (Proposed)": {
-      "per_round_ms_mean": 16.57386130006489,
-      "per_round_ms_sd": 2.8443291282037904,
-      "incremental_ms_mean": 1.5004063000014867,
-      "cpu_overhead_pct_mean": 18.015066630505313,
-      "cpu_overhead_pct_sd": 3.091662095873685
+      "per_round_ms_mean": 14.66500730007101,
+      "per_round_ms_sd": 0.5078325947591568,
+      "incremental_ms_mean": 0.9097145000196178,
+      "cpu_overhead_pct_mean": 15.940225326164143,
+      "cpu_overhead_pct_sd": 0.5519919508251705
     },
-    "topsis_kernel_only_ms": 0.41836360000888817
+    "topsis_kernel_only_ms": 0.36793620002572425
   },
   "tps_curves": {
     "Standard PoW": {
@@ -2124,36 +2169,36 @@
     },
     "ML-IDS": {
       "mean": [
-        2845.72,
+        2845.53,
         2844.17,
-        2845.84,
+        2845.83,
         2843.13,
-        2843.0,
+        2842.98,
         2846.92,
-        2846.21,
-        2842.7,
+        2846.17,
+        2842.92,
         2843.81,
         2844.38,
         2844.09,
-        2843.93,
-        2845.42,
-        2846.43,
-        2842.12,
-        2846.84,
-        2844.17,
-        2844.57,
+        2843.87,
+        2845.33,
+        2846.42,
+        2842.18,
+        2846.81,
+        2844.13,
+        2844.55,
         2842.3,
-        2845.59,
-        2844.4,
-        2843.46,
-        2844.44,
-        2845.01,
-        2842.59,
+        2845.52,
+        2844.39,
+        2843.48,
+        2844.39,
+        2845.13,
+        2842.57,
         2843.29,
-        2845.38,
-        2841.55,
-        2843.62,
-        2845.03,
+        2845.35,
+        2841.71,
+        2843.78,
+        2845.0,
         2845.29,
         2843.14,
         2844.0,
@@ -2247,36 +2292,36 @@
         2845.84
       ],
       "sd": [
-        6.93,
+        7.31,
         8.54,
         6.34,
         9.12,
-        10.24,
+        10.25,
         5.15,
-        7.1,
-        9.08,
+        7.08,
+        9.05,
         8.49,
         8.44,
         7.72,
-        9.25,
-        4.72,
-        7.37,
-        8.11,
-        4.12,
-        6.19,
-        7.94,
+        9.29,
+        4.69,
+        7.4,
+        8.1,
+        4.17,
+        6.27,
+        7.98,
         11.21,
         6.06,
         6.34,
-        9.24,
-        6.93,
-        8.61,
+        9.31,
+        6.97,
+        8.63,
         8.27,
         8.86,
-        8.7,
-        9.97,
-        7.58,
-        7.54,
+        8.75,
+        9.58,
+        7.48,
+        7.57,
         7.51,
         11.62,
         8.28,

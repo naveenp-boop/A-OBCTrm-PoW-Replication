@@ -6,10 +6,12 @@ benchmarks, and saving full JSON + CSV telemetry to results/.
 from __future__ import annotations
 import csv
 import json
+import platform
 import sys
 import time
 from pathlib import Path
 import numpy as np
+import sklearn
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -128,10 +130,16 @@ def main() -> None:
     ]
     for label, mod, frac, mode in scenarios:
         runs = [simulate_single_trial(mod, s, cfg, traitor_fraction=frac, attack_mode=mode, wan_mode=False, ml_detector=ml) for s in seeds]
+        feff_vals = [
+            (frac * (r["fnr_pct"] / 100.0))
+            / max(1e-12, (1.0 - frac) * (1.0 - r["fpr_pct"] / 100.0) + frac * (r["fnr_pct"] / 100.0))
+            for r in runs
+        ]
         adversarial_regimes[label] = {
             "filtered_pct": agg_metric([r["filtered_pct"] for r in runs]),
             "fnr_pct": agg_metric([r["fnr_pct"] for r in runs]),
             "fpr_pct": agg_metric([r["fpr_pct"] for r in runs]),
+            "f_eff": agg_metric(feff_vals),
             "pool_uptime_pct": agg_metric([r["pool_uptime_pct"] for r in runs]),
             "hm_pool_pct": agg_metric([r["hm_pool_pct"] for r in runs]),
             "conf_latency_s": agg_metric([r["conf_latency_s"] for r in runs]),
@@ -204,6 +212,9 @@ def main() -> None:
         "metadata": {
             "num_miners": cfg.num_miners,
             "num_trials": cfg.num_trials,
+            "python_version": platform.python_version(),
+            "numpy_version": np.__version__,
+            "sklearn_version": sklearn.__version__,
             "cpu_hardware": cpu_results.get("cpu_hardware", "Unknown"),
             "slot_cpu_budget_ms": cpu_results.get("slot_cpu_budget_ms", 92.0),
             "elapsed_wall_s": round(time.perf_counter() - t_start, 2),

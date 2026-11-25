@@ -61,17 +61,24 @@ def verify_theorem_1(cfg: SimConfig) -> dict:
     f_ths_1 = math.exp(cfg.k1_ths)
     w_isolated_unclamped = f_ths_1 / (f_ths_1 + 2.0)
 
-    # Check empirical Lipschitz bound of full clamped weight vector w(lam, tau, delta) vs delta
+    # Check Euclidean (L2) finite-difference Lipschitz bounds of clamped weight vector w(lam, tau, delta)
     max_clamped_fd_lip = 0.0
+    max_full_3d_l2_lip = 0.0
     step = float(grid[1] - grid[0])
     for lam in grid:
         for tau in grid:
             prev_vec = compute_adaptive_weights(lam, tau, float(grid[0]), cfg)
-            for delta in grid[1:]:
+            for delta in grid:
                 cur_vec = compute_adaptive_weights(lam, tau, float(delta), cfg)
-                lip = float(np.linalg.norm(cur_vec - prev_vec) / step)
-                max_clamped_fd_lip = max(max_clamped_fd_lip, lip)
-                prev_vec = cur_vec
+                if delta > grid[0]:
+                    lip = float(np.linalg.norm(cur_vec - prev_vec) / step)
+                    max_clamped_fd_lip = max(max_clamped_fd_lip, lip)
+                    prev_vec = cur_vec
+                dw_dl = (compute_adaptive_weights(min(1.0, float(lam) + step), float(tau), float(delta), cfg) - cur_vec) / step if lam < 1.0 else np.zeros(3)
+                dw_dt = (compute_adaptive_weights(float(lam), min(1.0, float(tau) + step), float(delta), cfg) - cur_vec) / step if tau < 1.0 else np.zeros(3)
+                dw_dd = (compute_adaptive_weights(float(lam), float(tau), min(1.0, float(delta) + step), cfg) - cur_vec) / step if delta < 1.0 else np.zeros(3)
+                J = np.column_stack([dw_dl, dw_dt, dw_dd])
+                max_full_3d_l2_lip = max(max_full_3d_l2_lip, float(np.linalg.norm(J, ord=2)))
 
     return {
         "passed": bool(monotonic_ok and max_deriv <= cfg.k1_ths / 4.0 + 1e-9 and max_w_clamped <= cfg.w_max_cap + 1e-9),
@@ -81,6 +88,7 @@ def verify_theorem_1(cfg: SimConfig) -> dict:
         "observed_max_derivative": float(max_deriv),
         "theoretical_lipschitz_bound": float(cfg.k1_ths / 4.0),
         "clamped_vector_max_delta_lipschitz": round(max_clamped_fd_lip, 6),
+        "clamped_vector_full_3d_l2_lipschitz": round(max_full_3d_l2_lip, 6),
         "monotonic_strictly": bool(monotonic_ok),
     }
 
@@ -170,21 +178,22 @@ def verify_theorem_3(cfg: SimConfig) -> dict:
 
 
 def verify_theorem_4(cfg: SimConfig, exp_results: dict | None = None) -> dict:
-    """Verify Theorem 4: BFT f < 1/3 margin preservation and exact f_eff evaluation."""
-    bft_grid_ok = True
+    """Verify Property 4: algebraic f_eff ratio under assumed condition 1 - rho >= psi and f < 1/3,
+    plus modeled 30-trial (mean +- SD) summary from simulation telemetry."""
+    ratio_grid_ok = True
     for f in np.linspace(0.01, 0.333, 40):
         for rho in np.linspace(0.0, 0.25, 15):
             for psi in np.linspace(0.0, 1.0 - rho, 15):
                 f_eff = (f * psi) / ((1.0 - f) * (1.0 - rho) + f * psi)
                 if f_eff >= (1.0 / 3.0):
-                    bft_grid_ok = False
+                    ratio_grid_ok = False
 
     if exp_results is None:
         exp_path = Path(__file__).resolve().parents[1] / "results" / "all_experiment_results.json"
         if exp_path.exists():
             exp_results = json.loads(exp_path.read_text(encoding="utf-8"))
 
-    empirical_50pct = {}
+    modeled_50pct = {}
     if exp_results and "adversarial_regimes" in exp_results:
         reg = exp_results["adversarial_regimes"]
         for key, label in (
@@ -193,30 +202,36 @@ def verify_theorem_4(cfg: SimConfig, exp_results: dict | None = None) -> dict:
         ):
             if key in reg:
                 rho = float(reg[key]["fpr_pct"]["mean"]) / 100.0
+                rho_sd = float(reg[key]["fpr_pct"]["sd"]) / 100.0
                 psi = float(reg[key]["fnr_pct"]["mean"]) / 100.0
+                psi_sd = float(reg[key]["fnr_pct"]["sd"]) / 100.0
                 f = 0.50
                 h_hm = (1.0 - f) * (1.0 - rho)
                 a_hm = f * psi
-                f_eff = a_hm / (h_hm + a_hm)
-                empirical_50pct[label] = {
+                ratio_of_means = a_hm / (h_hm + a_hm)
+                feff_block = reg[key].get("f_eff")
+                f_eff_mean = float(feff_block["mean"]) if feff_block else round(ratio_of_means, 4)
+                f_eff_sd = float(feff_block["sd"]) if feff_block else 0.0
+                modeled_50pct[label] = {
                     "f": f,
-                    "rho_fpr": round(rho, 4),
-                    "psi_fnr": round(psi, 4),
-                    "H_HM": round(h_hm, 4),
-                    "A_HM": round(a_hm, 4),
-                    "f_eff": round(f_eff, 4),
-                    "exceeds_one_third": bool(f_eff > 1.0 / 3.0),
+                    "rho_fpr_mean": round(rho, 4),
+                    "rho_fpr_sd": round(rho_sd, 4),
+                    "psi_fnr_mean": round(psi, 4),
+                    "psi_fnr_sd": round(psi_sd, 4),
+                    "f_eff_mean": round(f_eff_mean, 4),
+                    "f_eff_sd": round(f_eff_sd, 4),
+                    "exceeds_one_third": bool(f_eff_mean > 1.0 / 3.0),
                 }
 
-    # Exact closed-form benchmark values from (rho=0.0920, psi=0.6447) -> f_eff=0.4152 (not 0.619)
-    corr_feff = empirical_50pct.get("corrupted_feedback", {}).get("f_eff", 0.4152)
-    rel_feff = empirical_50pct.get("reliable_feedback", {}).get("f_eff", 0.0040)
-    passed = bool(bft_grid_ok and corr_feff > (1.0 / 3.0) and rel_feff < (1.0 / 3.0))
+    # Check algebraic condition generically without hard-coding a specific seed outcome inside the theorem
+    passed = bool(ratio_grid_ok)
+    if "corrupted_feedback" in modeled_50pct and "reliable_feedback" in modeled_50pct:
+        passed = passed and modeled_50pct["corrupted_feedback"]["exceeds_one_third"] and (not modeled_50pct["reliable_feedback"]["exceeds_one_third"])
     assert passed
     return {
         "passed": passed,
-        "bft_one_third_margin_holds_across_grid": bool(bft_grid_ok),
-        "empirical_50pct_cases": empirical_50pct,
+        "algebraic_one_third_condition_holds_under_assumption": bool(ratio_grid_ok),
+        "modeled_50pct_summary": modeled_50pct,
     }
 
 

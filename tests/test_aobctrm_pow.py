@@ -31,6 +31,8 @@ class TestAOBCTrmPoW(unittest.TestCase):
         res = verify_theorem_1(SimConfig())
         self.assertTrue(res["passed"])
         self.assertLessEqual(res["clamped_max_weight"], 0.80 + 1e-9)
+        self.assertGreater(res["clamped_vector_full_3d_l2_lipschitz"], 0.0)
+        self.assertLess(res["clamped_vector_full_3d_l2_lipschitz"], 1.0)
         self.assertTrue(res["monotonic_strictly"])
 
     def test_theorem_2_asymmetric_ths(self):
@@ -75,7 +77,7 @@ class TestAOBCTrmPoW(unittest.TestCase):
     def test_theorem_4_bft_and_feff(self):
         res = verify_theorem_4(SimConfig(), exp_results={})
         self.assertTrue(res["passed"])
-        self.assertTrue(res["bft_one_third_margin_holds_across_grid"])
+        self.assertTrue(res["algebraic_one_third_condition_holds_under_assumption"])
         f, rho, psi = 0.50, 0.0920, 0.6447
         f_eff = (f * psi) / ((1.0 - f) * (1.0 - rho) + f * psi)
         self.assertAlmostEqual(f_eff, 0.4152, places=4)

@@ -59,6 +59,8 @@ class SimConfig:
     ewma_lambda: float = 0.85
     token_bucket_capacity: int = 500
     token_bucket_rate: float = 50.0
+    # Calibration choice: 55 ingress peers * 50 tx/s + burst credit = 2,970 tx/s aggregate refill cap,
+    # deliberately bracketed between 2,850 tx/s nominal arrival (0% clean drop) and 3,400 tx/s validation capacity.
     token_bucket_peers: int = 55
     dyn_fee_zeta: float = 2.0
 

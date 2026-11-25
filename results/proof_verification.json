@@ -7,6 +7,7 @@
     "observed_max_derivative": 0.6249999656695783,
     "theoretical_lipschitz_bound": 0.625,
     "clamped_vector_max_delta_lipschitz": 0.787591,
+    "clamped_vector_full_3d_l2_lipschitz": 0.812994,
     "monotonic_strictly": true
   },
   "theorem_2_asymmetric_ths": {
@@ -88,24 +89,26 @@
   },
   "theorem_4_bft_capacity_and_feff": {
     "passed": true,
-    "bft_one_third_margin_holds_across_grid": true,
-    "empirical_50pct_cases": {
+    "algebraic_one_third_condition_holds_under_assumption": true,
+    "modeled_50pct_summary": {
       "reliable_feedback": {
         "f": 0.5,
-        "rho_fpr": 0.0438,
-        "psi_fnr": 0.0038,
-        "H_HM": 0.4781,
-        "A_HM": 0.0019,
-        "f_eff": 0.004,
+        "rho_fpr_mean": 0.0438,
+        "rho_fpr_sd": 0.0099,
+        "psi_fnr_mean": 0.0038,
+        "psi_fnr_sd": 0.0028,
+        "f_eff_mean": 0.004,
+        "f_eff_sd": 0.0029,
         "exceeds_one_third": false
       },
       "corrupted_feedback": {
         "f": 0.5,
-        "rho_fpr": 0.092,
-        "psi_fnr": 0.6447,
-        "H_HM": 0.454,
-        "A_HM": 0.3224,
-        "f_eff": 0.4152,
+        "rho_fpr_mean": 0.092,
+        "rho_fpr_sd": 0.031,
+        "psi_fnr_mean": 0.6447,
+        "psi_fnr_sd": 0.0459,
+        "f_eff_mean": 0.4148,
+        "f_eff_sd": 0.0113,
         "exceeds_one_third": true
       }
     }
