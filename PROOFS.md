@@ -69,7 +69,7 @@ Let total network mining weight be normalized to $1$, with adversarial weight fr
 1. *(Retained Honest Capacity):* The active High-Reliability Miner (HM) pool retains exact honest weight $H_{\mathrm{HM}} = (1 - f)(1 - \rho)$ and malicious weight $A_{\mathrm{HM}} = f\psi$.
 2. *(Effective Post-Filter Fraction):* Conditional on the measurement error rates $(\rho, \psi)$, the adversarial share inside $\mathcal{M}_{\mathrm{HM}}$ is:
    $$f_{\mathrm{eff}} = \frac{f\psi}{(1 - f)(1 - \rho) + f\psi}.$$
-   In raw unnormalized terms relative to initial adversarial participation, admitted adversarial weight is $f \cdot \psi$ (which at $f = 0.50, \psi = 0.082$ evaluates to $0.041$, or $f_{\mathrm{eff}} \approx 0.079$ as share of the active HM pool).
+   Under reliable feedback at $f = 0.50$ ($\rho = 0.0438, \psi = 0.0038$), admitted adversarial capacity is $f\psi = 0.0019$ and $f_{\mathrm{eff}} \approx 0.0040$; conversely, when majority feedback channels are compromised ($\rho = 0.0920, \psi = 0.6447$), $f_{\mathrm{eff}} \approx 0.619 > 1/3$, confirming breakdown.
 3. *(Formal BFT Safety/Liveness Scope):* Assuming honest-recall $\ge$ malicious-bypass ($1 - \rho \ge \psi$), $f < 1/3$ guarantees $f_{\mathrm{eff}} < 1/3$ strictly. Conversely, when $f \ge 1/3$ globally, no cryptographic or BFT safety guarantee is claimed because $(\rho, \psi)$ depend on measurement integrity (THS, NSI, PRF) which loses majority trust guarantees when $f > 1/3$.
 
 **Proof.**  
