@@ -1,0 +1,120 @@
+{
+  "theorem_1_adaptive_weights": {
+    "passed": true,
+    "joint_stress_w_THS": 0.7302561589052574,
+    "isolated_anomaly_unclamped_w_THS": 0.8589810786775899,
+    "clamped_max_weight": 0.8,
+    "observed_max_derivative": 0.6249999656695783,
+    "theoretical_lipschitz_bound": 0.625,
+    "monotonic_strictly": true
+  },
+  "theorem_2_asymmetric_ths": {
+    "passed": true,
+    "zero_to_half_recovery_blocks": 14,
+    "cases": [
+      {
+        "initial_THS": 0.5,
+        "post_defection_THS": 0.15,
+        "drop_pct": 70.0,
+        "target": 0.5,
+        "simulated_recovery_blocks": 11,
+        "closed_form_k_rec": 11
+      },
+      {
+        "initial_THS": 0.5,
+        "post_defection_THS": 0.15,
+        "drop_pct": 70.0,
+        "target": 0.75,
+        "simulated_recovery_blocks": 24,
+        "closed_form_k_rec": 24
+      },
+      {
+        "initial_THS": 0.7,
+        "post_defection_THS": 0.23,
+        "drop_pct": 67.14,
+        "target": 0.5,
+        "simulated_recovery_blocks": 9,
+        "closed_form_k_rec": 9
+      },
+      {
+        "initial_THS": 0.7,
+        "post_defection_THS": 0.23,
+        "drop_pct": 67.14,
+        "target": 0.75,
+        "simulated_recovery_blocks": 22,
+        "closed_form_k_rec": 22
+      },
+      {
+        "initial_THS": 0.85,
+        "post_defection_THS": 0.29,
+        "drop_pct": 65.88,
+        "target": 0.5,
+        "simulated_recovery_blocks": 7,
+        "closed_form_k_rec": 7
+      },
+      {
+        "initial_THS": 0.85,
+        "post_defection_THS": 0.29,
+        "drop_pct": 65.88,
+        "target": 0.75,
+        "simulated_recovery_blocks": 21,
+        "closed_form_k_rec": 21
+      },
+      {
+        "initial_THS": 0.95,
+        "post_defection_THS": 0.33,
+        "drop_pct": 65.26,
+        "target": 0.5,
+        "simulated_recovery_blocks": 6,
+        "closed_form_k_rec": 6
+      },
+      {
+        "initial_THS": 0.95,
+        "post_defection_THS": 0.33,
+        "drop_pct": 65.26,
+        "target": 0.75,
+        "simulated_recovery_blocks": 20,
+        "closed_form_k_rec": 20
+      }
+    ]
+  },
+  "theorem_3_sybil_bound": {
+    "passed": true,
+    "zero_history_sybil_shift": 0.0,
+    "probationary_30pct_sybil_observed_shift": 0.0877,
+    "theorem3_theoretical_upper_bound": 0.1047,
+    "corrupted_majority_feedback_bound": 0.4615
+  },
+  "theorem_5_trimmed_threshold_noise": {
+    "baseline_T": 0.4979,
+    "injections": {
+      "5pct": {
+        "T_new": 0.47,
+        "T_relative_shift_pct": 5.61,
+        "trimmed_mean_shift_pct": 3.97
+      },
+      "10pct": {
+        "T_new": 0.47,
+        "T_relative_shift_pct": 5.61,
+        "trimmed_mean_shift_pct": 8.03
+      },
+      "20pct": {
+        "T_new": 0.47,
+        "T_relative_shift_pct": 5.61,
+        "trimmed_mean_shift_pct": 15.29
+      }
+    }
+  },
+  "probationary_convergence": {
+    "median_blocks_to_95pct_steady": 38.5,
+    "median_blocks_to_HM_admission_with_probation": 50.0,
+    "without_probation_excluded_pct": 100.0
+  },
+  "contextual_bandit_pilot": {
+    "n_miners": 100,
+    "n_runs": 20,
+    "fixed_prop_delay_s": 0.6088,
+    "bandit_prop_delay_s": 0.5541,
+    "delay_reduction_pct": 8.98
+  }
+}

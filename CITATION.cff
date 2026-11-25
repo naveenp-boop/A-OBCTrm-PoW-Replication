@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: "A-OBCTrm-PoW: Adaptive Trust-Aware Consensus Optimization Replication Package"
+message: "If you use this software or dataset, please cite our accompanying Scientific Reports manuscript."
+type: software
+authors:
+  - family-names: Puppala
+    given-names: Naga Sravanthi
+    email: nagasravanthi.p@srmap.edu.in
+    affiliation: SRM University-AP
+  - family-names: Pasam
+    given-names: Naveen
+    email: naveen_p@srmap.edu.in
+    affiliation: SRM University-AP
+keywords:
+  - blockchain consensus
+  - Proof-of-Work
+  - DDoS mitigation
+  - TOPSIS
+  - trust management
+  - Byzantine fault tolerance
+license: MIT

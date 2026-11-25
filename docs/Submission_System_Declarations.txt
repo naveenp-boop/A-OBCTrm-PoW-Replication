@@ -1,0 +1,9 @@
+================================================================================
+SUBMISSION SYSTEM DECLARATIONS — DATA AND CODE AVAILABILITY
+(Ready to copy-paste directly into the journal's Online Submission System ->
+"Declarations" / "Data Availability" field, per IHE Comment #3)
+================================================================================
+
+DATA AND CODE AVAILABILITY STATEMENT:
+All simulation source code, mathematical proof verification scripts, randomized trial telemetry logs (30 independent Monte Carlo trials across 1,000 simulated miners and 50-node log-normal WAN topologies), Linux/Mininet network emulation configuration files, and figure-generation scripts supporting the findings of this study are publicly available in an open-access GitHub repository at [LINK_TO_VERIFY_AFTER_PUSH] and permanently archived on Zenodo at [DOI_LINK_TO_VERIFY_AFTER_DEPOSIT].
+================================================================================
