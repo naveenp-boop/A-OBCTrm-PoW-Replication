@@ -4,7 +4,8 @@ This repository provides the full reproducible codebase, analytical property/bou
 
 > **Lightweight Trust-Aware Consensus Optimization for Efficient Blockchain Performance Under Adversarial Conditions**  
 > Puppala Naga Sravanthi and Pasam Naveen  
-> Department of Computer Science and Engineering, School of Engineering and Applied Sciences, SRM University-AP, Amaravati, 522240, India
+> Department of Computer Science and Engineering, School of Engineering and Applied Sciences, SRM University-AP, Amaravati, 522240, India  
+> **Repository:** https://github.com/naveenp-boop/A-OBCTrm-PoW-Replication
 
 ---
 
@@ -47,6 +48,7 @@ A-OBCTrm-PoW-Replication/
     ├── weight_calibration.json       # Heuristic weight grid search on disjoint calibration seeds 1..5
     ├── unseen_seeds_200_229.json     # Out-of-sample replication check on unseen seeds 200..229
     └── figures/                      # Generated 300 DPI Figs 1–5
+```
 
 ---
 
