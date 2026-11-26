@@ -31,8 +31,6 @@ A-OBCTrm-PoW-Replication/
 │   ├── verify_proofs.py              # Numerical verification of Properties/Bounds 1–5 & pilot studies
 │   ├── generate_figures.py           # Generates Figures 2–5 from JSON results (and Fig 1 diagram)
 │   └── summarize_for_paper.py        # Summarizes JSON metrics & statistics for manuscript tables
-├── docs/
-│   └── Submission_System_Declarations.txt # Copy-paste Data & Code Availability text for portal
 ├── mininet_testbed/
 │   ├── topology_wan.py               # Optional unexecuted Mininet/OVS WAN topology template (not cited as evidence)
 │   ├── Dockerfile                    # Containerized Python 3.14-slim execution environment
