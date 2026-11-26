@@ -30,9 +30,7 @@ A-OBCTrm-PoW-Replication/
 │   ├── calibrate_weights.py          # Coarse-to-fine heuristic weight sweep on seeds 1..5
 │   ├── verify_proofs.py              # Numerical verification of Properties/Bounds 1–5 & pilot studies
 │   ├── generate_figures.py           # Generates Figures 2–5 from JSON results (and Fig 1 diagram)
-│   ├── summarize_for_paper.py        # Summarizes JSON metrics & statistics for manuscript tables
-│   ├── audit_dois.py                 # Dynamically verifies CrossRef metadata for all DOIs in main.tex
-│   └── audit_tex.py                  # Strict LaTeX structural, math & citation auditor
+│   └── summarize_for_paper.py        # Summarizes JSON metrics & statistics for manuscript tables
 ├── docs/
 │   └── Submission_System_Declarations.txt # Copy-paste Data & Code Availability text for portal
 ├── mininet_testbed/
