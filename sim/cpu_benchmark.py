@@ -130,12 +130,12 @@ def benchmark_model_cpu_and_runtime(cfg: SimConfig, n_rounds: int = 25, n_trials
     for _ in range(500):
         w = compute_adaptive_weights(0.65, 0.85, 0.70, cfg)
         D = np.column_stack([ths, nsi, ths])
-        R = D / (np.linalg.norm(D, axis=0) + 1e-12)
+        R = D / (np.linalg.norm(D, axis=0) + cfg.eps)
         V = R * w
         Ap, An = V.max(axis=0), V.min(axis=0)
         Sp = np.linalg.norm(V - Ap, axis=1)
         Sn = np.linalg.norm(V - An, axis=1)
-        C = Sn / (Sp + Sn + 1e-12)
+        C = Sn / (Sp + Sn + cfg.eps)
         compute_dynamic_threshold(C, 0.70, cfg)
     results["topsis_kernel_only_ms"] = float((time.perf_counter() - t0) * 1000.0 / 500.0)
     return results

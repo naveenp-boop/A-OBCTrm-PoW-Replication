@@ -1,0 +1,94 @@
+{
+  "seeds": "200..229",
+  "ddos_30pct": {
+    "Standard PoW": {
+      "b_cr_mean": 13.9123,
+      "b_cr_sd": 0.095,
+      "b_prop_mean": 5.9861
+    },
+    "ML-IDS": {
+      "b_cr_mean": 2.1464,
+      "b_cr_sd": 0.0113,
+      "b_prop_mean": 0.468
+    },
+    "Static TOPSIS": {
+      "b_cr_mean": 2.0886,
+      "b_cr_sd": 0.0132,
+      "b_prop_mean": 0.4579
+    },
+    "EWMA Reputation": {
+      "b_cr_mean": 2.4663,
+      "b_cr_sd": 0.0372,
+      "b_prop_mean": 0.6366
+    },
+    "Token Bucket": {
+      "b_cr_mean": 12.5342,
+      "b_cr_sd": 0.0823,
+      "b_prop_mean": 5.4751
+    },
+    "Dynamic Fee": {
+      "b_cr_mean": 13.4892,
+      "b_cr_sd": 0.0911,
+      "b_prop_mean": 5.8299
+    },
+    "A-OBCTrm-PoW": {
+      "b_cr_mean": 2.0841,
+      "b_cr_sd": 0.011,
+      "b_prop_mean": 0.4562
+    }
+  },
+  "adversarial": {
+    "50% reliable": {
+      "filtered_pct": 99.7518,
+      "fnr_pct": 0.2482,
+      "fpr_pct": 4.4153,
+      "f_eff": 0.0026,
+      "pool_uptime_pct": 100.0
+    },
+    "50% corrupted": {
+      "filtered_pct": 59.3497,
+      "fnr_pct": 40.6503,
+      "fpr_pct": 5.0161,
+      "f_eff": 0.2997,
+      "pool_uptime_pct": 0.0
+    },
+    "50% sleeper": {
+      "filtered_pct": 41.8648,
+      "fnr_pct": 58.1352,
+      "fpr_pct": 7.9508,
+      "f_eff": 0.3854,
+      "pool_uptime_pct": 0.0
+    },
+    "30% Sybil AOBC": {
+      "filtered_pct": 99.0968,
+      "fnr_pct": 0.9032,
+      "fpr_pct": 4.5496,
+      "f_eff": 0.004,
+      "pool_uptime_pct": 100.0
+    },
+    "30% Sybil Static": {
+      "filtered_pct": 94.4444,
+      "fnr_pct": 5.5556,
+      "fpr_pct": 0.8286,
+      "f_eff": 0.0234,
+      "pool_uptime_pct": 100.0
+    }
+  },
+  "wan_50_node": {
+    "Static TOPSIS": {
+      "b_cr_mean": 2.0776,
+      "b_cr_sd": 0.0589,
+      "b_prop_mean": 0.4499
+    },
+    "ML-IDS": {
+      "b_cr_mean": 2.1318,
+      "b_cr_sd": 0.0587,
+      "b_prop_mean": 0.4616
+    },
+    "A-OBCTrm-PoW": {
+      "b_cr_mean": 2.0828,
+      "b_cr_sd": 0.0661,
+      "b_prop_mean": 0.4526
+    }
+  }
+}

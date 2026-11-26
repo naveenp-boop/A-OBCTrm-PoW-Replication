@@ -6,6 +6,7 @@ nodes under DDoS flooding, Sybil cliques, bootstrapping defectors, and multi-vec
 """
 
 from __future__ import annotations
+from collections import deque
 import hashlib
 import time
 import numpy as np
@@ -47,7 +48,7 @@ def simulate_single_trial(
     seed: int,
     cfg: SimConfig,
     traitor_fraction: float = 0.30,
-    attack_mode: str = "ddos",  # "nominal", "ddos", "sybil", "multivector", "corrupted_feedback"
+    attack_mode: str = "ddos",  # "nominal", "ddos", "sybil", "multivector", "corrupted_feedback", "sleeper_feedback"
     wan_mode: bool = False,
     ml_detector: MLIDSDetector | None = None,
 ) -> dict:
@@ -61,6 +62,8 @@ def simulate_single_trial(
         mu_ln=cfg.wan_mu_ln,
         sigma_ln=cfg.wan_sigma_ln,
         packet_loss=cfg.wan_packet_loss,
+        backbone_bw_mbps=cfg.backbone_bw_mbps,
+        edge_bw_mbps=cfg.edge_bw_mbps,
     )
 
     n_mal = int(round(n_nodes * traitor_fraction))
@@ -89,7 +92,7 @@ def simulate_single_trial(
     nbr_ratings = rng.normal(0.80, 0.08, size=(n_nodes, k_nbr))
     nbr_ratings[(~rater_mal) & target_mal] = rng.normal(0.28, 0.10, size=int(((~rater_mal) & target_mal).sum()))
 
-    if attack_mode in ("sybil", "multivector", "corrupted_feedback"):
+    if attack_mode in ("sybil", "multivector", "corrupted_feedback", "sleeper_feedback"):
         nsi[is_mal] = np.clip(rng.normal(0.60, 0.12, n_mal), 0.15, 0.92)
         ths[is_mal] = np.clip(rng.normal(0.34, 0.12, n_mal), 0.05, 0.68)
         m_mm = int((rater_mal & target_mal).sum())
@@ -98,10 +101,10 @@ def simulate_single_trial(
             nbr_ratings[rater_mal & target_mal] = rng.normal(0.95, 0.03, size=m_mm)
         if m_mh > 0:
             nbr_ratings[rater_mal & (~target_mal)] = rng.normal(0.24, 0.10, size=m_mh)
-        if attack_mode == "corrupted_feedback" and traitor_fraction > 0.333:
+        if attack_mode in ("corrupted_feedback", "sleeper_feedback") and traitor_fraction > 0.333:
+            # Aged compromised accounts start with accumulated historical trust before poisoning ratings
             comp_idx = np.where(is_mal)[0][: int(0.85 * n_mal)]
             ths[comp_idx] = rng.uniform(0.64, 0.88, size=len(comp_idx))
-            nsi[comp_idx] = rng.uniform(0.60, 0.84, size=len(comp_idx))
     else:
         m_mm = int((rater_mal & target_mal).sum())
         m_mh = int((rater_mal & (~target_mal)).sum())
@@ -126,6 +129,14 @@ def simulate_single_trial(
 
     last_closeness = None
     last_threshold = 0.52
+    tb_tokens = float(cfg.token_bucket_peers * cfg.token_bucket_capacity)
+
+    # Sliding W-tick causal telemetry windows (no ground-truth traitor_fraction or is_mal access)
+    bprop_hist: deque[float] = deque([0.42], maxlen=cfg.window_w)
+    arrival_hist: deque[float] = deque([cfg.nominal_tx_rate], maxlen=cfg.window_w)
+    defect_hist: deque[float] = deque([0.0], maxlen=cfg.window_w)
+    # Precompute neighbor-rating dispersion observable from current P2P feedback matrix
+    rating_disp = float(np.mean(np.std(nbr_ratings, axis=1)))
 
     for t in range(cfg.sim_duration_s + 1):
         attack_active = (attack_mode != "nominal") and (t >= cfg.ddos_start_s)
@@ -136,11 +147,28 @@ def simulate_single_trial(
             atk_scale = 1.0
 
         honest_in = cfg.nominal_tx_rate
-        spam_in = (cfg.ddos_attack_rate * atk_scale) if attack_mode in ("ddos", "multivector", "corrupted_feedback") else (1800.0 * atk_scale)
+        spam_in = (cfg.ddos_attack_rate * atk_scale) if attack_mode in ("ddos", "multivector", "corrupted_feedback", "sleeper_feedback") else (1800.0 * atk_scale)
+        total_arrival = honest_in + spam_in
+        arrival_hist.append(total_arrival)
 
-        lam_hat = float(np.clip(0.12 + 0.72 * atk_scale + 0.15 * traitor_fraction + rng.normal(0, 0.02), 0.0, 1.0))
-        tau_hat = float(np.clip((honest_in + spam_in) / (cfg.nominal_tx_rate + cfg.ddos_attack_rate), 0.0, 1.0))
-        delta_hat = float(np.clip(0.10 + 0.78 * atk_scale * (0.65 + 0.7 * traitor_fraction) + rng.normal(0, 0.02), 0.0, 1.0))
+        # Causal observable telemetry drivers over sliding W=50 horizon (zero oracle leakage)
+        mean_bprop_w = float(np.mean(bprop_hist))
+        obs_bprop_norm = float(np.clip((mean_bprop_w - 0.35) / 1.50, 0.0, 1.0))
+        obs_excess_cap = float(np.clip((total_arrival - cfg.service_capacity_tx_s) / cfg.ddos_attack_rate, 0.0, 1.0))
+        q_norm_cur = float(np.clip(mempool_q / cfg.mempool_capacity_tx, 0.0, 1.0))
+        lam_hat = float(np.clip(0.55 * obs_bprop_norm + 0.45 * obs_excess_cap + 0.25 * q_norm_cur, 0.0, 1.0))
+
+        peak_or_cur_arr = 0.75 * total_arrival + 0.25 * float(np.mean(arrival_hist))
+        tau_hat = float(np.clip(peak_or_cur_arr / (cfg.nominal_tx_rate + cfg.ddos_attack_rate), 0.0, 1.0))
+
+        excess_flux = float(np.clip((total_arrival - cfg.nominal_tx_rate) / cfg.ddos_attack_rate, 0.0, 1.0))
+        low_ths_frac = float(np.mean(ths < cfg.theta_c))
+        obs_defect_rate = float(np.mean(defect_hist))
+        delta_hat = float(np.clip(
+            0.45 * excess_flux + 0.30 * low_ths_frac + 0.20 * min(1.0, obs_defect_rate * 4.0) + 0.25 * min(1.0, rating_disp / 0.28),
+            0.0,
+            1.0,
+        ))
 
         ml_filter_s = 0.0
         extra_honest_pen: float | None = None
@@ -159,7 +187,7 @@ def simulate_single_trial(
 
         elif model_name == "Static TOPSIS":
             raw_prf = compute_credibility_prf(ths, nbr_ratings, cfg, uniform_fallback=True, neighbor_indices=nbr_indices)
-            admitted, _ = static_topsis_admit(ths, nsi, raw_prf, threshold=0.45)
+            admitted, _ = static_topsis_admit(ths, nsi, raw_prf)
 
         elif model_name == "EWMA Reputation":
             round_q = np.where(
@@ -171,12 +199,13 @@ def simulate_single_trial(
 
         elif model_name == "Token Bucket":
             admitted = np.ones(n_nodes, dtype=bool)
-            _, adm_a, tb_pen = token_bucket_filter(
+            _, adm_a, tb_pen, tb_tokens = token_bucket_filter(
                 honest_in,
                 spam_in,
                 cfg.token_bucket_capacity,
                 cfg.token_bucket_rate,
                 num_ingress_peers=cfg.token_bucket_peers,
+                bucket_tokens=tb_tokens,
             )
             spam_leak_factor = (adm_a / max(1.0, spam_in)) if spam_in > 0 else 0.0
             extra_honest_pen = tb_pen
@@ -209,10 +238,16 @@ def simulate_single_trial(
 
             valid_outcomes = np.ones(n_nodes, dtype=bool)
             mal_prop = proposers & is_mal
-            defect_prob = 0.04 if attack_mode == "corrupted_feedback" else (0.28 if attack_active else 0.14)
+            # In corrupted_feedback (active defectors), compromised nodes keep uniform defect_prob=0.28.
+            # In explicit sleeper_feedback, compromised validators mimic honest block validity (0.004) while poisoning feedback ratings.
+            if attack_mode == "sleeper_feedback":
+                defect_prob = 0.004
+            else:
+                defect_prob = 0.28 if attack_active else 0.14
             valid_outcomes[mal_prop] = ~(rng.random(int(mal_prop.sum())) < defect_prob)
             hon_prop = proposers & (~is_mal)
             valid_outcomes[hon_prop] = ~(rng.random(int(hon_prop.sum())) < 0.004)
+            defect_hist.append(float((proposers & (~valid_outcomes)).sum()) / max(1, int(proposers.sum())))
 
             ths = update_ths_asymmetric(ths, valid_outcomes, proposers, cfg)
             nsi = np.clip(nsi + rng.normal(0.0, 0.004, size=n_nodes), 0.05, 0.99)
@@ -259,16 +294,15 @@ def simulate_single_trial(
             filter_latency_s=0.55 * ml_filter_s,
             block_size_mb=cfg.block_size_mb,
         )
+        bprop_hist.append(b_prop)
 
         fork_rate = float(np.clip(0.004 + 0.015 * b_prop + 0.08 * mal_share_admitted, 0.002, 0.22))
         stale_rate = float(np.clip(0.42 * fork_rate + 0.045 * mal_share_admitted, 0.001, 0.18))
 
-        base_decision_s = 1.65 if int(admitted.sum()) < n_nodes else 2.05
+        base_decision_s = 1.65
         congestion_bcr = 0.45 * load_ratio + 1.35 * (load_ratio ** 1.15)
         fork_inflation = 1.0 / max(0.38, 1.0 - 2.0 * fork_rate)
         b_cr = (base_decision_s + congestion_bcr + 1.90 * ml_filter_s + 0.85 * b_prop) * fork_inflation + float(rng.normal(0, 0.07))
-        if topo.wan_mode:
-            b_cr *= 1.15
         b_cr = max(1.4, b_cr)
 
         hon_pool_frac = float((admitted & ~is_mal).sum()) / max(1, n_nodes)

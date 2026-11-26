@@ -1,0 +1,76 @@
+{
+  "calibration_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "coarse_grid_count": 216,
+  "fine_grid_count": 39,
+  "best_fine": {
+    "k1": 0.5,
+    "k2": 1.0,
+    "k3": 3.0,
+    "ddos_bcr_s": 2.0865,
+    "attack_fnr_pct": 0.0,
+    "all_fpr_pct": 0.0267,
+    "objective": 1.04379
+  },
+  "top_5_fine": [
+    {
+      "k1": 0.5,
+      "k2": 1.0,
+      "k3": 3.0,
+      "ddos_bcr_s": 2.0865,
+      "attack_fnr_pct": 0.0,
+      "all_fpr_pct": 0.0267,
+      "objective": 1.04379
+    },
+    {
+      "k1": 0.5,
+      "k2": 0.75,
+      "k3": 3.0,
+      "ddos_bcr_s": 2.0865,
+      "attack_fnr_pct": 0.0,
+      "all_fpr_pct": 0.0394,
+      "objective": 1.04404
+    },
+    {
+      "k1": 0.5,
+      "k2": 0.75,
+      "k3": 2.75,
+      "ddos_bcr_s": 2.0865,
+      "attack_fnr_pct": 0.0,
+      "all_fpr_pct": 0.058,
+      "objective": 1.04441
+    },
+    {
+      "k1": 0.5,
+      "k2": 1.25,
+      "k3": 3.0,
+      "ddos_bcr_s": 2.0865,
+      "attack_fnr_pct": 0.0073,
+      "all_fpr_pct": 0.0433,
+      "objective": 1.04449
+    },
+    {
+      "k1": 0.5,
+      "k2": 1.25,
+      "k3": 2.75,
+      "ddos_bcr_s": 2.0865,
+      "attack_fnr_pct": 0.0,
+      "all_fpr_pct": 0.0757,
+      "objective": 1.04477
+    }
+  ],
+  "default_2p5_1p5_1p0": {
+    "k1": 2.5,
+    "k2": 1.5,
+    "k3": 1.0,
+    "ddos_bcr_s": 2.0925,
+    "attack_fnr_pct": 0.752,
+    "all_fpr_pct": 3.287,
+    "objective": 1.14957
+  }
+}

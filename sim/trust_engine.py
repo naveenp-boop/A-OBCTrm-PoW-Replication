@@ -1,9 +1,9 @@
 """Core mathematical engine for A-OBCTrm-PoW:
-- Adaptive TOPSIS weighting (Eqs. 1-5)
-- Credibility-weighted Peer Reliability Factor PRF (Eqs. 6-8)
-- Asymmetric trust penalty dynamics (Eq. 9)
-- Probationary entry mechanism (Eqs. 10-11)
-- Trimmed dynamic admission threshold T(t) (Eq. 12)
+- Adaptive TOPSIS weighting (Eqs. 4-6)
+- Credibility-weighted Peer Reliability Factor PRF (Eqs. 9-11)
+- Asymmetric trust penalty dynamics (Eq. 12)
+- Dynamic trimmed admission threshold T(t) via O(m) Quickselect (Eq. 13)
+- Probationary entry mechanism (Eqs. 14-15)
 """
 
 from __future__ import annotations
@@ -101,8 +101,9 @@ def compute_topsis_closeness(
     cfg: SimConfig | None = None,
 ) -> np.ndarray:
     """Compute TOPSIS Closeness Coefficient C_i in [0, 1] for every miner."""
+    eps = cfg.eps if cfg is not None else 1e-5
     D = np.column_stack([ths, nsi, prf]).astype(np.float64)
-    col_norms = np.linalg.norm(D, axis=0) + 1e-12
+    col_norms = np.linalg.norm(D, axis=0) + eps
     R = D / col_norms
 
     # Apply per-node weight matrix (honoring probationary THS cap when active)
@@ -113,7 +114,7 @@ def compute_topsis_closeness(
             capped = np.minimum(W_mat[prob_mask, 0], cfg.w_ths_probation_cap)
             redistr = W_mat[prob_mask, 0] - capped
             W_mat[prob_mask, 0] = capped
-            other = W_mat[prob_mask, 1] + W_mat[prob_mask, 2] + 1e-12
+            other = W_mat[prob_mask, 1] + W_mat[prob_mask, 2] + eps
             W_mat[prob_mask, 1] += redistr * (W_mat[prob_mask, 1] / other)
             W_mat[prob_mask, 2] += redistr * (W_mat[prob_mask, 2] / other)
 
@@ -124,7 +125,7 @@ def compute_topsis_closeness(
     S_pos = np.linalg.norm(V - A_pos, axis=1)
     S_neg = np.linalg.norm(V - A_neg, axis=1)
 
-    return np.clip(S_neg / (S_pos + S_neg + 1e-12), 0.0, 1.0)
+    return np.clip(S_neg / (S_pos + S_neg + eps), 0.0, 1.0)
 
 
 def compute_dynamic_threshold(
@@ -132,10 +133,14 @@ def compute_dynamic_threshold(
     delta_hat: float,
     cfg: SimConfig,
 ) -> tuple[float, float, float]:
-    """Compute dynamic threshold T(t) using symmetric 5%-trimmed distribution statistics."""
-    xs = np.sort(closeness)
-    k = int(np.floor(cfg.trim_fraction * len(xs)))
-    trimmed = xs[k : len(xs) - k] if k > 0 and 2 * k < len(xs) else xs
+    """Compute dynamic threshold T(t) via O(m) Quickselect (np.partition) 5%-trimming."""
+    n = len(closeness)
+    k = int(np.floor(cfg.trim_fraction * n))
+    if k > 0 and 2 * k < n:
+        part = np.partition(closeness, (k - 1, n - k))
+        trimmed = part[k : n - k]
+    else:
+        trimmed = closeness
 
     mu_trim = float(np.mean(trimmed))
     sig_trim = float(np.std(trimmed))

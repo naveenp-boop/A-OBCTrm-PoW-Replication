@@ -124,6 +124,7 @@ def main() -> None:
         ("Medium (30% traitors)", "A-OBCTrm-PoW", 0.30, "ddos"),
         ("High (50% traitors, reliable feedback)", "A-OBCTrm-PoW", 0.50, "ddos"),
         ("High (50% traitors, corrupted feedback)", "A-OBCTrm-PoW", 0.50, "corrupted_feedback"),
+        ("High (50% traitors, sleeper feedback poisoning)", "A-OBCTrm-PoW", 0.50, "sleeper_feedback"),
         ("Feedback Collusion (30% Sybil, A-OBCTrm-PoW)", "A-OBCTrm-PoW", 0.30, "sybil"),
         ("Feedback Collusion (30% Sybil, Uniform PRF)", "Static TOPSIS", 0.30, "sybil"),
         ("Combined Multi-Vector (DDoS + Sybil + Collusion)", "A-OBCTrm-PoW", 0.30, "multivector"),

@@ -8,11 +8,10 @@ class SimConfig:
     # Network / SimBlock-equivalent parameters
     num_miners: int = 1000
     num_trials: int = 30
-    blocks_per_trial: int = 500
     sim_duration_s: int = 120
     ddos_start_s: int = 30
 
-    # Scaled PoW target (1/60 of 600s Bitcoin target)
+    # Scaled PoW target metadata (1/60 of 600s Bitcoin target; 16-bit SHA-256 sample verification)
     target_block_interval_s: float = 10.0
     pow_leading_zero_bits: int = 16
 
@@ -20,8 +19,8 @@ class SimConfig:
     nominal_tx_rate: float = 2850.0        # baseline transaction arrival rate (tx/s)
     service_capacity_tx_s: float = 3400.0  # nominal validation clearing capacity (tx/s)
     ddos_attack_rate: float = 5000.0       # malicious mempool flood rate (tx/s)
-    backbone_bw_mbps: float = 100.0
-    edge_bw_mbps: float = 15.0
+    backbone_bw_mbps: float = 100.0        # 20% backbone relay tier (Mbps)
+    edge_bw_mbps: float = 15.0             # 80% edge miner tier mean -> U(10, 20) Mbps
     mempool_capacity_tx: int = 15000
     tx_size_bytes: int = 250
     block_size_mb: float = 1.25
@@ -59,9 +58,10 @@ class SimConfig:
     ewma_lambda: float = 0.85
     token_bucket_capacity: int = 500
     token_bucket_rate: float = 50.0
-    # Calibration choice: 55 ingress peers * 50 tx/s + burst credit = 2,970 tx/s aggregate refill cap,
-    # deliberately bracketed between 2,850 tx/s nominal arrival (0% clean drop) and 3,400 tx/s validation capacity.
-    token_bucket_peers: int = 55
+    # Calibration choice: 59 ingress peers * 50 tx/s = 2,950 tx/s aggregate refill cap
+    # (with 59 * 500 = 29,500 tx initial burst pool), cleanly bracketed between
+    # 2,850 tx/s nominal arrival (0% clean drop) and 3,400 tx/s validation capacity.
+    token_bucket_peers: int = 59
     dyn_fee_zeta: float = 2.0
 
     # 50-node WAN emulation parameters (Section 4.8 & 5.1)

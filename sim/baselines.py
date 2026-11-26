@@ -174,22 +174,24 @@ def token_bucket_filter(
     attack_tx_rate: float,
     capacity_tx: int,
     refill_rate_tx_s: float,
-    num_ingress_peers: int = 55,
-) -> tuple[float, float, float]:
-    """Indiscriminate token-bucket ingress throttling aggregated across gateway peers.
+    num_ingress_peers: int = 59,
+    bucket_tokens: float | None = None,
+) -> tuple[float, float, float, float]:
+    """Stateful token-bucket ingress throttling aggregated across gateway peers (no hidden refill credit).
 
-    Returns (admitted_honest_tx_s, admitted_attack_tx_s, honest_penalty_frac).
+    Returns (admitted_honest_tx_s, admitted_attack_tx_s, honest_penalty_frac, next_bucket_tokens).
     """
-    # Per-gateway refill budget + transient burst buffer credit
-    total_refill = num_ingress_peers * refill_rate_tx_s + 0.08 * num_ingress_peers * (capacity_tx / 10.0)
+    max_tokens = float(num_ingress_peers * capacity_tx)
+    refill = float(num_ingress_peers * refill_rate_tx_s)
+    avail = refill if bucket_tokens is None else min(max_tokens, float(bucket_tokens) + refill)
     total_demand = honest_tx_rate + attack_tx_rate
-    if total_demand <= total_refill:
-        return honest_tx_rate, attack_tx_rate, 0.0
-    accept_ratio = total_refill / total_demand
+    if total_demand <= avail:
+        return honest_tx_rate, attack_tx_rate, 0.0, avail - total_demand
+    accept_ratio = avail / max(1e-9, total_demand)
     admitted_h = honest_tx_rate * accept_ratio
     admitted_a = attack_tx_rate * accept_ratio
     penalty = max(0.0, (honest_tx_rate - admitted_h) / max(1.0, honest_tx_rate))
-    return admitted_h, admitted_a, penalty
+    return admitted_h, admitted_a, penalty, 0.0
 
 
 def dynamic_fee_filter(

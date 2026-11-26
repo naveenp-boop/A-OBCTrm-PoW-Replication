@@ -19,25 +19,30 @@ class P2PNetworkTopology:
         mu_ln: float = 4.5,
         sigma_ln: float = 0.9,
         packet_loss: float = 0.005,
+        backbone_bw_mbps: float = 100.0,
+        edge_bw_mbps: float = 15.0,
     ) -> None:
         self.num_nodes = num_nodes
         self.wan_mode = wan_mode
         self.packet_loss = packet_loss
         self.rng = rng
 
-        # Node roles: 20% backbone super-relays (100 Mbps), 80% edge miners (10-20 Mbps)
+        # Node roles: 20% backbone super-relays (100 Mbps), 80% edge miners (10-20 Mbps, mean 15 Mbps)
         n_backbone = max(4, int(0.20 * num_nodes))
         self.is_backbone = np.zeros(num_nodes, dtype=bool)
         self.is_backbone[:n_backbone] = True
 
+        edge_lo = max(2.0, edge_bw_mbps - 5.0)
+        edge_hi = edge_bw_mbps + 5.0
         self.node_bw_mbps = np.where(
             self.is_backbone,
-            100.0,
-            rng.uniform(12.0, 22.0, size=num_nodes),
+            backbone_bw_mbps,
+            rng.uniform(edge_lo, edge_hi, size=num_nodes),
         )
 
-        # Regional cluster assignment (6 Bitcoin global regions)
-        self.region = rng.integers(0, 6, size=num_nodes)
+        # Regional cluster assignment (5 WAN regions in 50-node mode; 6 global regions in 1,000-node overlay)
+        n_regions = 5 if wan_mode else 6
+        self.region = rng.integers(0, n_regions, size=num_nodes)
         if wan_mode:
             # Heavy-tailed WAN delay: log-normal in ms converted to seconds
             hop_ms = rng.lognormal(mean=mu_ln, sigma=sigma_ln, size=num_nodes)
@@ -87,9 +92,6 @@ class P2PNetworkTopology:
         congestion_delay_s = 0.22 * (mempool_load_ratio ** 1.25)
 
         loss_multiplier = 1.0 / max(0.5, 1.0 - 5.0 * self.packet_loss * self.nominal_diameter_hops)
-        if self.wan_mode:
-            # Heavy-tailed log-normal WAN links + OVS queuing + packet-loss retransmit backoff
-            loss_multiplier *= 1.48
 
         hop_cost = (mean_hop_s + tx_delay_per_hop_s) * self.nominal_diameter_hops * stall_multiplier
         b_prop = (hop_cost + congestion_delay_s) * loss_multiplier + filter_latency_s
